@@ -5,12 +5,101 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Xunit;
+using System.Data;
 
 namespace Stateless.Tests
 {
 
     public class AsyncActionsFixture
     {
+        [Fact]
+        public void FiringAsyncWithOneParameter()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            const int intParam = 5;
+            bool callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .PermitIf(trigger, State.B, (intArg) => {
+                    Assert.Equal(intParam, intArg);
+                    callbackInvoked = true;
+                    return intArg == intParam;
+                });
+            sm.Configure(State.B);
+
+            sm.FireAsync(trigger, intParam);
+            Assert.Equal(State.B, sm.State);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void FiringAsyncWithOneParameterEx()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            const int intParam = 5;
+            bool callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .PermitIf(trigger, State.B, (intArg) => {
+                    Assert.Equal(intParam, intArg);
+                    callbackInvoked = true;
+                    return intArg == intParam;
+                });
+            sm.Configure(State.B);
+
+            sm.FireAsync(Trigger.X, intParam);
+            Assert.Equal(State.B, sm.State);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void FiringAsyncWithTwoParametersEx() {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            bool callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .PermitIf(trigger, State.B, (intArg, strArg) => {
+                    Assert.Equal(intParam, intArg);
+                    Assert.Equal(strParam, strArg);
+                    callbackInvoked = true;
+                    return (intArg == intParam) && (strArg == strParam);
+                });
+            sm.Configure(State.B);
+
+            sm.FireAsync(Trigger.X, intParam, strParam);
+            Assert.Equal(State.B, sm.State);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void FiringAsyncWithThreeParametersEx() {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            const bool boolParam = true;
+            bool callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .PermitIf(trigger, State.B, (intArg, strArg, boolArg) => {
+                    Assert.Equal(intParam, intArg);
+                    Assert.Equal(strParam, strArg);
+                    Assert.Equal(boolParam, boolArg);
+                    callbackInvoked = true;
+                    return (intArg == intParam) && (strArg == strParam) && (boolArg == boolParam);
+                });
+            sm.Configure(State.B);
+
+            sm.FireAsync(Trigger.X, intParam, strParam, boolParam);
+            Assert.Equal(State.B, sm.State);
+            Assert.True(callbackInvoked);
+        }
+
         [Fact]
         public void StateMutatorShouldBeCalledOnlyOnce()
         {

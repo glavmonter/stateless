@@ -181,6 +181,64 @@ namespace Stateless.Tests
         }
 
         [Fact]
+        public void AllowTriggerWithOneParameterEx()
+        {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int>(Trigger.X);
+            const int intParam = 5;
+            var callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .InternalTransition(trigger, (arg, transition) => {
+                    callbackInvoked = true;
+                    Assert.Equal(intParam, arg);
+                });
+
+            sm.Fire(Trigger.X, 5);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void AllowTriggerWithTwoParametersEx() {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, string>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            var callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .InternalTransition(trigger, (argInt, argString, transition) => {
+                    callbackInvoked = true;
+                    Assert.Equal(intParam, argInt);
+                    Assert.Equal(strParam, argString);
+                });
+
+            sm.Fire(Trigger.X, intParam, strParam);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void AllowTriggerWithThreeParametersEx() {
+            var sm = new StateMachine<State, Trigger>(State.A);
+            var trigger = sm.SetTriggerParameters<int, string, bool>(Trigger.X);
+            const int intParam = 5;
+            const string strParam = "Five";
+            const bool boolParam = true;
+            var callbackInvoked = false;
+
+            sm.Configure(State.A)
+                .InternalTransition(trigger, (argInt, argString, argBool, transition) => {
+                    callbackInvoked = true;
+                    Assert.Equal(intParam, argInt);
+                    Assert.Equal(strParam, argString);
+                    Assert.Equal(boolParam, boolParam);
+                });
+
+            sm.Fire(Trigger.X, intParam, strParam, boolParam);
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
         public void AllowTriggerWithThreeParameters()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
